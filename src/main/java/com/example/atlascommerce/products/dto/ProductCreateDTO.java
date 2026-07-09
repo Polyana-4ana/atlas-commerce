@@ -2,6 +2,8 @@ package com.example.atlascommerce.products.dto;
 
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
@@ -15,14 +17,9 @@ public class ProductCreateDTO {
     @NotBlank(message = "A descrição é obrigatória")
     private String description;
 
-    @NotBlank(message = "O preço é obrigatório")
+    @NotNull(message="Preço obrigatório")
+    @Positive(message="Preço deve ser positivo")
     private BigDecimal price;
-
-    public Long getId(){
-        return  id;
-    }
-
-    public void setId(Long id){this.id = id;}
 
     public String getName(){return name;}
 
