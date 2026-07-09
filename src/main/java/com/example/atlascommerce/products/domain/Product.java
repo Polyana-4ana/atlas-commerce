@@ -2,9 +2,13 @@ package com.example.atlascommerce.products.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
+@Getter
+@Setter
 @Data
 @Entity
 @Table(name = "products")

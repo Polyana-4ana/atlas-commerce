@@ -4,12 +4,13 @@ import com.example.atlascommerce.products.domain.Product;
 import com.example.atlascommerce.products.dto.ProductCreateDTO;
 import com.example.atlascommerce.products.dto.ProductResponseDTO;
 import com.example.atlascommerce.products.repository.ProductRepository;
-import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
+import com.example.atlascommerce.products.repository.ProductSpecification;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.lang.module.ResolutionException;
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -43,7 +44,54 @@ public class ProductService {
         return forDTO(saved);
     }
 
-    // filtros
+    public List<ProductResponseDTO> findAll(){
+        return productRepository.findAll()
+                .stream()
+                .map(this::forDTO)
+                .toList();
+    }
+
+    public ProductResponseDTO findById(Long id){
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Not found" + id));
+
+        return forDTO(product);
+    }
+
+    public List<ProductResponseDTO> withFilters(
+            String name,
+            String description,
+            BigDecimal price
+    ) {
+
+        Specification<Product> spc = (root, query, cb) -> cb.conjunction();
+
+        if (name != null && !name.isBlank()){
+            name = name.trim().toLowerCase();
+        }
+        if (description != null && !description.isBlank()){
+            description = description.trim().toLowerCase();
+        }
+
+        if (name != null){
+            spc = spc.and(ProductSpecification.hasName(name));
+        }
+
+        if (description != null){
+            spc = spc.and(ProductSpecification.hasDescription(description));
+        }
+
+        if (price != null){
+            spc = spc.and(ProductSpecification.hasPrice(price));
+        }
+
+        return productRepository.findAll((Sort) spc)
+                .stream()
+                .map(this::forDTO)
+                .toList();
+
+    }
+
 
     public ProductResponseDTO updateProduct(Long id, ProductCreateDTO dto) {
         Product product = productRepository.findById(id)
