@@ -1,4 +1,4 @@
-package com.example.atlascommerce.products.service;
+package com.example.atlascommerce.shared.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

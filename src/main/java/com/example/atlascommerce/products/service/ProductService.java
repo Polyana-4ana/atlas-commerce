@@ -5,7 +5,8 @@ import com.example.atlascommerce.products.dto.ProductCreateDTO;
 import com.example.atlascommerce.products.dto.ProductResponseDTO;
 import com.example.atlascommerce.products.repository.ProductRepository;
 import com.example.atlascommerce.products.repository.ProductSpecification;
-import org.springframework.data.domain.Sort;
+import com.example.atlascommerce.shared.exception.ResourceNotFoundException;
+import com.example.atlascommerce.products.mapper.ProductMapper;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -16,38 +17,26 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, ProductMapper productMapper) {
         this.productRepository = productRepository;
-    }
-
-    public ProductResponseDTO forDTO(Product product){
-        ProductResponseDTO dto = new ProductResponseDTO();
-
-        dto.setId(product.getId());
-        dto.setName(product.getName());
-        dto.setDescription(product.getDescription());
-        dto.setPrice(product.getPrice());
-
-        return dto;
+        this.productMapper = productMapper;
     }
 
     public ProductResponseDTO createProduct(ProductCreateDTO dto){
-        Product product = new Product();
 
-        product.setName(dto.getName());
-        product.setDescription(dto.getDescription());
-        product.setPrice(dto.getPrice());
+        Product product = productMapper.toEntity(dto);
 
         Product saved = productRepository.save(product);
 
-        return forDTO(saved);
+        return productMapper.toResponse(saved);
     }
 
     public List<ProductResponseDTO> findAll(){
         return productRepository.findAll()
                 .stream()
-                .map(this::forDTO)
+                .map(productMapper::toResponse)
                 .toList();
     }
 
@@ -55,7 +44,7 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Not found" + id));
 
-        return forDTO(product);
+        return productMapper.toResponse(product);
     }
 
     public List<ProductResponseDTO> withFilters(
@@ -85,9 +74,9 @@ public class ProductService {
             spc = spc.and(ProductSpecification.hasPrice(price));
         }
 
-        return productRepository.findAll((Sort) spc)
+        return productRepository.findAll(spc)
                 .stream()
-                .map(this::forDTO)
+                .map(productMapper::toResponse)
                 .toList();
 
     }
@@ -103,7 +92,7 @@ public class ProductService {
 
         Product updated = productRepository.save(product);
 
-        return forDTO(updated);
+        return productMapper.toResponse(updated);
     }
 
     public void deleteProduct(Long id){
