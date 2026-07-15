@@ -11,14 +11,14 @@ public class ProductCreateDTO {
 
     private Long id;
 
-    @NotBlank(message = "O nome é obrigatório")
+    @NotBlank(message = "Name is required")
     private String name;
 
-    @NotBlank(message = "A descrição é obrigatória")
+    @NotBlank(message = "Description is required")
     private String description;
 
-    @NotNull(message="Preço obrigatório")
-    @Positive(message="Preço deve ser positivo")
+    @NotNull(message="Price ir required")
+    @Positive(message="Price must be greater than zero")
     private BigDecimal price;
 
     public String getName(){return name;}
